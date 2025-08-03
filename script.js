@@ -215,11 +215,17 @@ async function initializeData() {
     
     // 如果在线加载失败，从本地加载
     if (!onlineLoaded) {
+        console.log("在线加载失败，使用本地数据");
         loadFromLocalStorage();
+    } else {
+        console.log("在线加载成功，使用在线数据");
     }
     
     // 更新当前显示的道具列表
     currentItems = [...doraemonItems];
+    
+    console.log("最终道具数量:", doraemonItems.length);
+    console.log("最终道具列表:", doraemonItems);
     
     // 渲染数据
     renderItems(doraemonItems);
@@ -628,8 +634,12 @@ function saveToLocalStorage() {
 function loadFromLocalStorage() {
     const saved = localStorage.getItem('doraemonItems');
     if (saved) {
-        doraemonItems = JSON.parse(saved);
+        const localItems = JSON.parse(saved);
+        console.log("从本地存储加载数据:", localItems);
+        doraemonItems = localItems;
         currentItems = [...doraemonItems];
+    } else {
+        console.log("本地存储中没有数据");
     }
 }
 
