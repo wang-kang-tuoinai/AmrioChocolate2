@@ -85,10 +85,12 @@ class OnlineDataManager {
                 doraemonItems = result.record.items;
                 console.log("从JSONBin加载数据成功，道具数量:", doraemonItems.length);
                 console.log("道具列表:", doraemonItems);
+                console.log("OnlineDataManager.loadFromOnline 返回 true");
                 return true;
             } else {
                 console.log("JSONBin中没有数据或数据格式不正确，使用默认数据");
                 console.log("result.record:", result.record);
+                console.log("OnlineDataManager.loadFromOnline 返回 false");
                 return false;
             }
         } catch (error) {
@@ -170,8 +172,12 @@ async function loadFromOnline() {
 
     try {
         const result = await onlineDataManager.loadFromOnline();
+        console.log("loadFromOnline 返回结果:", result);
         if (result) {
             onlineDataManager.showSyncStatus("✅ 数据同步成功");
+            console.log("在线数据加载成功，返回 true");
+        } else {
+            console.log("在线数据加载失败，返回 false");
         }
         return result;
     } catch (error) {
