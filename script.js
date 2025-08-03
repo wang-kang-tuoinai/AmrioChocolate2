@@ -1,8 +1,8 @@
 // 哆啦A梦道具大全 - JavaScript
-// JSONBin.io 在线存储配置
-const JSONBIN_CONFIG = {
-    binId: "688ed8017b4b8670d8abf64e", // 你的bin ID
-    apiKey: "" // 留空，无需API密钥
+// GitHub Gist 在线存储配置
+const GIST_CONFIG = {
+    token: "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", // 你的GitHub Token
+    gistId: "" // 留空，自动创建
 };
 
 // 哆啦A梦道具数据
@@ -50,7 +50,7 @@ class OnlineDataManager {
 
     // 检查是否有在线存储配置
     hasOnlineConfig() {
-        return JSONBIN_CONFIG.binId && JSONBIN_CONFIG.binId !== "你的binId";
+        return GIST_CONFIG.token && GIST_CONFIG.token !== "你的GitHub Token";
     }
 
     // 从在线存储加载数据
@@ -61,39 +61,45 @@ class OnlineDataManager {
         }
 
         try {
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            
-            // 如果有API密钥，添加到请求头
-            if (JSONBIN_CONFIG.apiKey) {
-                headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
+            // 如果没有Gist ID，尝试从localStorage获取
+            let gistId = GIST_CONFIG.gistId;
+            if (!gistId) {
+                gistId = localStorage.getItem('gist_id');
             }
-            
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`, {
-                headers: headers
+
+            if (!gistId) {
+                console.log("没有Gist ID，无法加载在线数据");
+                return false;
+            }
+
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: {
+                    'Authorization': `token ${GIST_CONFIG.token}`
+                }
             });
 
             if (!response.ok) {
-                throw new Error('无法从在线存储加载数据');
+                throw new Error(`无法从Gist加载数据: ${response.status}`);
             }
 
             const result = await response.json();
-            console.log("JSONBin返回的完整数据:", result);
+            console.log("Gist返回的完整数据:", result);
             
-            if (result.record && result.record.items && Array.isArray(result.record.items)) {
-                doraemonItems = result.record.items;
-                console.log("从JSONBin加载数据成功，道具数量:", doraemonItems.length);
-                console.log("道具列表:", doraemonItems);
-                console.log("OnlineDataManager.loadFromOnline 返回 true");
-                return true;
-            } else {
-                console.log("JSONBin中没有数据或数据格式不正确");
-                console.log("result.record:", result.record);
-                console.log("result.record.items:", result.record?.items);
-                console.log("OnlineDataManager.loadFromOnline 返回 false");
-                return false;
+            const file = result.files['doraemon-items.json'];
+            if (file && file.content) {
+                const data = JSON.parse(file.content);
+                if (data.items && Array.isArray(data.items)) {
+                    doraemonItems = data.items;
+                    console.log("从Gist加载数据成功，道具数量:", doraemonItems.length);
+                    console.log("道具列表:", doraemonItems);
+                    console.log("OnlineDataManager.loadFromOnline 返回 true");
+                    return true;
+                }
             }
+            
+            console.log("Gist中没有有效数据");
+            console.log("OnlineDataManager.loadFromOnline 返回 false");
+            return false;
         } catch (error) {
             console.error("在线数据加载失败:", error);
             throw error;
@@ -108,32 +114,53 @@ class OnlineDataManager {
         }
 
         try {
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            
-            // 如果有API密钥，添加到请求头
-            if (JSONBIN_CONFIG.apiKey) {
-                headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
+            let gistId = GIST_CONFIG.gistId;
+            if (!gistId) {
+                gistId = localStorage.getItem('gist_id');
             }
-            
+
             const dataToSave = {
                 items: doraemonItems,
                 lastUpdated: new Date().toISOString(),
                 version: '1.0'
             };
+
+            const gistData = {
+                description: "哆啦A梦道具数据",
+                public: false,
+                files: {
+                    "doraemon-items.json": {
+                        content: JSON.stringify(dataToSave, null, 2)
+                    }
+                }
+            };
+
+            console.log("准备保存数据到Gist:", dataToSave);
             
-            console.log("准备保存数据到JSONBin:", dataToSave);
-            
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`, {
-                method: 'PUT',
-                headers: headers,
-                body: JSON.stringify(dataToSave)
+            const url = gistId ? 
+                `https://api.github.com/gists/${gistId}` : 
+                'https://api.github.com/gists';
+
+            const response = await fetch(url, {
+                method: gistId ? 'PATCH' : 'POST',
+                headers: {
+                    'Authorization': `token ${GIST_CONFIG.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gistData)
             });
 
             if (response.ok) {
                 const result = await response.json();
-                console.log("数据保存到JSONBin成功:", result);
+                console.log("数据保存到Gist成功:", result);
+                
+                // 如果是新创建的Gist，保存ID
+                if (!gistId) {
+                    gistId = result.id;
+                    localStorage.setItem('gist_id', gistId);
+                    console.log("新Gist ID已保存:", gistId);
+                }
+                
                 return true;
             } else {
                 const errorText = await response.text();
