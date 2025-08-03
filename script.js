@@ -183,18 +183,26 @@ async function loadFromOnline() {
 
 // 保存数据（本地 + 在线）
 async function saveData() {
+    console.log("saveData() 被调用");
+    console.log("当前道具数量:", doraemonItems.length);
+    
     // 保存到本地存储
     saveToLocalStorage();
+    console.log("本地存储保存完成");
     
     // 尝试保存到在线存储
     if (hasOnlineConfig()) {
+        console.log("检测到在线配置，准备保存到JSONBin");
         try {
             await onlineDataManager.saveToOnline();
             onlineDataManager.showSyncStatus("✅ 数据同步成功");
+            console.log("在线保存成功");
         } catch (error) {
             console.error("在线保存失败:", error);
             onlineDataManager.showSyncStatus("⚠️ 在线同步失败，仅保存到本地", true);
         }
+    } else {
+        console.log("未检测到在线配置，仅保存到本地");
     }
 }
 
@@ -359,6 +367,8 @@ function showAddItemForm() {
 async function addNewItem(e) {
     e.preventDefault();
     
+    console.log("开始添加新道具...");
+    
     // 收集出现位置信息
     const appearances = [];
     const appearanceItems = document.querySelectorAll('.appearance-item');
@@ -391,9 +401,18 @@ async function addNewItem(e) {
         appearances: appearances
     };
     
+    console.log("新道具信息:", newItem);
+    console.log("添加前道具数量:", doraemonItems.length);
+    
     doraemonItems.push(newItem);
     currentItems = [...doraemonItems];
+    
+    console.log("添加后道具数量:", doraemonItems.length);
+    console.log("准备保存数据...");
+    
     await saveData();
+    
+    console.log("数据保存完成");
     
     closeEditForm();
     renderItems(currentItems);
