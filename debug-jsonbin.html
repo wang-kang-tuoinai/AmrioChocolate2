@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONBin 调试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>JSONBin 数据调试</h1>
+    
+    <button onclick="checkData()">检查当前数据</button>
+    <button onclick="addTestItem()">添加测试道具</button>
+    <button onclick="clearData()">清空数据</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const JSONBIN_CONFIG = {
+            binId: "688ed8017b4b8670d8abf64e",
+            apiKey: ""
+        };
+
+        async function checkData() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">正在检查数据...</div>';
+            
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`);
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="result">
+                        <h3>当前JSONBin数据:</h3>
+                        <p><strong>道具数量:</strong> ${result.record?.items?.length || 0}</p>
+                        <p><strong>最后更新:</strong> ${result.record?.lastUpdated || '未知'}</p>
+                        <p><strong>版本:</strong> ${result.record?.version || '未知'}</p>
+                        <h4>完整数据:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result" style="background: #ffebee; color: #c62828;">
+                    <h3>检查失败:</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+
+        async function addTestItem() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">正在添加测试道具...</div>';
+            
+            try {
+                // 先获取当前数据
+                const getResponse = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`);
+                const currentData = await getResponse.json();
+                
+                const currentItems = currentData.record?.items || [];
+                const newItem = {
+                    id: Date.now(),
+                    name: "测试道具_" + Date.now(),
+                    category: "测试分类",
+                    description: "这是一个测试道具",
+                    image: "https://example.com/test.jpg",
+                    features: ["测试特性"],
+                    appearances: []
+                };
+                
+                currentItems.push(newItem);
+                
+                const updateData = {
+                    items: currentItems,
+                    lastUpdated: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const putResponse = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await putResponse.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="result" style="background: #e8f5e8; color: #2e7d32;">
+                        <h3>测试道具添加成功!</h3>
+                        <p><strong>新道具ID:</strong> ${newItem.id}</p>
+                        <p><strong>新道具名称:</strong> ${newItem.name}</p>
+                        <p><strong>总道具数量:</strong> ${currentItems.length}</p>
+                        <h4>JSONBin响应:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result" style="background: #ffebee; color: #c62828;">
+                    <h3>添加失败:</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+
+        async function clearData() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">正在清空数据...</div>';
+            
+            try {
+                const clearData = {
+                    items: [],
+                    lastUpdated: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(clearData)
+                });
+                
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="result" style="background: #fff3e0; color: #ef6c00;">
+                        <h3>数据已清空!</h3>
+                        <h4>JSONBin响应:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result" style="background: #ffebee; color: #c62828;">
+                    <h3>清空失败:</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+
+        // 页面加载时自动检查数据
+        window.onload = checkData;
+    </script>
+</body>
+</html> 
