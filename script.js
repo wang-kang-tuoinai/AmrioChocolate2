@@ -81,15 +81,16 @@ class OnlineDataManager {
             const result = await response.json();
             console.log("JSONBin返回的完整数据:", result);
             
-            if (result.record && result.record.items) {
+            if (result.record && result.record.items && Array.isArray(result.record.items)) {
                 doraemonItems = result.record.items;
                 console.log("从JSONBin加载数据成功，道具数量:", doraemonItems.length);
                 console.log("道具列表:", doraemonItems);
                 console.log("OnlineDataManager.loadFromOnline 返回 true");
                 return true;
             } else {
-                console.log("JSONBin中没有数据或数据格式不正确，使用默认数据");
+                console.log("JSONBin中没有数据或数据格式不正确");
                 console.log("result.record:", result.record);
+                console.log("result.record.items:", result.record?.items);
                 console.log("OnlineDataManager.loadFromOnline 返回 false");
                 return false;
             }
@@ -223,6 +224,12 @@ async function initializeData() {
     if (!onlineLoaded) {
         console.log("在线加载失败，使用本地数据");
         loadFromLocalStorage();
+        
+        // 如果本地也没有数据，使用默认数据但不保存到在线
+        if (doraemonItems.length === 0) {
+            console.log("本地也没有数据，使用默认数据");
+            // 这里不调用 saveData()，避免覆盖在线数据
+        }
     } else {
         console.log("在线加载成功，使用在线数据");
     }
