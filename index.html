@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哆啦A梦道具大全</title>
+    <link rel="stylesheet" href="styles.css?v=3.4">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="https://c-ssl.duitang.com/uploads/item/201610/14/20161014172408_WkHMy.jpeg" alt="哆啦A梦" class="logo-img">
+                    <h1>哆啦A梦道具大全</h1>
+                </div>
+                <p class="subtitle">探索哆啦A梦口袋里的神奇道具</p>
+            </div>
+        </header>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索道具名称或功能..." class="search-input">
+                <button id="searchBtn" class="search-btn">搜索</button>
+            </div>
+            <div class="filter-container">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">所有分类</option>
+                    <option value="交通工具">交通工具</option>
+                    <option value="生活用品">生活用品</option>
+                    <option value="战斗道具">战斗道具</option>
+                    <option value="娱乐道具">娱乐道具</option>
+                    <option value="学习道具">学习道具</option>
+                    <option value="医疗道具">医疗道具</option>
+                    <option value="时空道具">时空道具</option>
+                </select>
+                <button id="clearFilters" class="clear-btn">清除筛选</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <span id="itemCount">共找到 <strong>0</strong> 个道具</span>
+            <div id="syncStatus"></div>
+        </div>
+
+        <main class="main-content">
+            <div id="itemsGrid" class="items-grid">
+                <!-- 道具卡片将在这里动态生成 -->
+            </div>
+        </main>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <div class="no-results-content">
+                <img src="https://via.placeholder.com/120x120/FFD700/FFFFFF?text=?" alt="没有找到" class="no-results-img">
+                <h3>没有找到相关道具</h3>
+                <p>试试其他关键词或清除筛选条件</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 道具详情模态框 --> 
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalContent">
+                <!-- 模态框内容将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
