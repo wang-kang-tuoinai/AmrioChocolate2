@@ -1,8 +1,8 @@
 // 哆啦A梦道具大全 - JavaScript
 // GitHub Gist 在线存储配置
 const GIST_CONFIG = {
-    token: "", // 管理员Token（留空表示只读模式）
-    gistId: "" // 留空，自动创建
+    token: window.GITHUB_CONFIG?.token || "", // 从配置文件读取Token
+    gistId: window.GITHUB_CONFIG?.gistId || "" // 从配置文件读取Gist ID
 };
 
 // 哆啦A梦道具数据
