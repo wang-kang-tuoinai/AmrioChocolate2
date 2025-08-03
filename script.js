@@ -79,12 +79,16 @@ class OnlineDataManager {
             }
 
             const result = await response.json();
+            console.log("JSONBin返回的完整数据:", result);
+            
             if (result.record && result.record.items) {
                 doraemonItems = result.record.items;
-                console.log("从JSONBin加载数据成功:", doraemonItems);
+                console.log("从JSONBin加载数据成功，道具数量:", doraemonItems.length);
+                console.log("道具列表:", doraemonItems);
                 return true;
             } else {
-                console.log("JSONBin中没有数据，使用默认数据");
+                console.log("JSONBin中没有数据或数据格式不正确，使用默认数据");
+                console.log("result.record:", result.record);
                 return false;
             }
         } catch (error) {
@@ -110,21 +114,28 @@ class OnlineDataManager {
                 headers['X-Master-Key'] = JSONBIN_CONFIG.apiKey;
             }
             
+            const dataToSave = {
+                items: doraemonItems,
+                lastUpdated: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            console.log("准备保存数据到JSONBin:", dataToSave);
+            
             const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.binId}`, {
                 method: 'PUT',
                 headers: headers,
-                body: JSON.stringify({
-                    items: doraemonItems,
-                    lastUpdated: new Date().toISOString(),
-                    version: '1.0'
-                })
+                body: JSON.stringify(dataToSave)
             });
 
             if (response.ok) {
-                console.log("数据保存到JSONBin成功");
+                const result = await response.json();
+                console.log("数据保存到JSONBin成功:", result);
                 return true;
             } else {
-                throw new Error('保存失败');
+                const errorText = await response.text();
+                console.error("保存失败，状态码:", response.status, "错误信息:", errorText);
+                throw new Error(`保存失败: ${response.status} ${errorText}`);
             }
         } catch (error) {
             console.error("在线数据保存失败:", error);
