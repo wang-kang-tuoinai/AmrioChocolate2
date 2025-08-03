@@ -1,7 +1,7 @@
 // 哆啦A梦道具大全 - JavaScript
 // GitHub Gist 在线存储配置
 const GIST_CONFIG = {
-    token: "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", // 你的GitHub Token
+    token: "", // 管理员Token（留空表示只读模式）
     gistId: "" // 留空，自动创建
 };
 
@@ -55,11 +55,6 @@ class OnlineDataManager {
 
     // 从在线存储加载数据
     async loadFromOnline() {
-        if (!this.hasOnlineConfig()) {
-            console.log("未配置在线存储，使用本地数据");
-            return false;
-        }
-
         try {
             // 如果没有Gist ID，尝试从localStorage获取
             let gistId = GIST_CONFIG.gistId;
@@ -72,11 +67,8 @@ class OnlineDataManager {
                 return false;
             }
 
-            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-                headers: {
-                    'Authorization': `token ${GIST_CONFIG.token}`
-                }
-            });
+            // 公开Gist可以直接访问，无需Token
+            const response = await fetch(`https://api.github.com/gists/${gistId}`);
 
             if (!response.ok) {
                 throw new Error(`无法从Gist加载数据: ${response.status}`);
@@ -108,8 +100,9 @@ class OnlineDataManager {
 
     // 保存数据到在线存储
     async saveToOnline() {
-        if (!this.hasOnlineConfig()) {
-            console.log("未配置在线存储，仅保存到本地");
+        // 只有在有Token的情况下才尝试保存到在线存储
+        if (!GIST_CONFIG.token) {
+            console.log("未配置管理员Token，仅保存到本地");
             return false;
         }
 
@@ -127,7 +120,7 @@ class OnlineDataManager {
 
             const gistData = {
                 description: "哆啦A梦道具数据",
-                public: false,
+                public: true, // 设为公开，任何人都可以读取
                 files: {
                     "doraemon-items.json": {
                         content: JSON.stringify(dataToSave, null, 2)
