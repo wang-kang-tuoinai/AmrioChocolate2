@@ -481,6 +481,27 @@ body::before {
     100% { transform: rotate(360deg); }
 }
 
+/* 同步状态样式 */
+.sync-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin-top: 10px;
+    border: 1px solid #c3e6cb;
+}
+
+.sync-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin-top: 10px;
+    border: 1px solid #f5c6cb;
+}
+
 /* 管理员功能样式 */
 .admin-btn {
     padding: 10px 20px;
