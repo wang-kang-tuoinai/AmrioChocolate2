@@ -193,10 +193,6 @@ async function saveData() {
     console.log("saveData() 被调用");
     console.log("当前道具数量:", doraemonItems.length);
     
-    // 保存到本地存储
-    saveToLocalStorage();
-    console.log("本地存储保存完成");
-    
     // 尝试保存到在线存储
     if (hasOnlineConfig()) {
         console.log("检测到在线配置，准备保存到JSONBin");
@@ -204,12 +200,22 @@ async function saveData() {
             await onlineDataManager.saveToOnline();
             onlineDataManager.showSyncStatus("✅ 数据同步成功");
             console.log("在线保存成功");
+            
+            // 在线保存成功后，再保存到本地存储作为备份
+            saveToLocalStorage();
+            console.log("本地存储备份完成");
         } catch (error) {
             console.error("在线保存失败:", error);
             onlineDataManager.showSyncStatus("⚠️ 在线同步失败，仅保存到本地", true);
+            
+            // 在线保存失败时，保存到本地存储
+            saveToLocalStorage();
+            console.log("本地存储保存完成");
         }
     } else {
         console.log("未检测到在线配置，仅保存到本地");
+        saveToLocalStorage();
+        console.log("本地存储保存完成");
     }
 }
 
@@ -232,6 +238,9 @@ async function initializeData() {
         }
     } else {
         console.log("在线加载成功，使用在线数据");
+        // 在线数据加载成功时，更新本地存储作为备份
+        saveToLocalStorage();
+        console.log("本地存储备份完成");
     }
     
     // 更新当前显示的道具列表
