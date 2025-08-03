@@ -158,7 +158,11 @@ async function loadFromOnline() {
     }
 
     try {
-        return await onlineDataManager.loadFromOnline();
+        const result = await onlineDataManager.loadFromOnline();
+        if (result) {
+            onlineDataManager.showSyncStatus("✅ 数据同步成功");
+        }
+        return result;
     } catch (error) {
         console.error("在线数据加载失败:", error);
         onlineDataManager.showSyncStatus("⚠️ 在线数据加载失败，使用本地数据", true);
@@ -195,9 +199,12 @@ async function initializeData() {
         loadFromLocalStorage();
     }
     
+    // 更新当前显示的道具列表
+    currentItems = [...doraemonItems];
+    
     // 渲染数据
-renderItems(doraemonItems);
-updateStats();
+    renderItems(doraemonItems);
+    updateStats();
 }
 
 // 管理员设置
