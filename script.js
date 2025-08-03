@@ -196,8 +196,8 @@ async function initializeData() {
     }
     
     // 渲染数据
-    renderItems();
-    updateStats();
+renderItems(doraemonItems);
+updateStats();
 }
 
 // 管理员设置
@@ -640,15 +640,17 @@ function renderItems(items) {
                 <span class="item-category">${item.category}</span>
                 <p class="item-description">${item.description}</p>
                 <div class="item-features">
-                    ${item.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                    ${(item.features || []).map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
                 </div>
                 <div class="item-appearances">
                     <h4>出现位置：</h4>
                     ${item.appearances ? item.appearances.map(appearance => {
                         if (appearance.type === 'season') {
-                            return `<span class="appearance-tag season">${appearance.value} ${appearance.episode}</span>`;
+                            return `<span class="appearance-tag season">${appearance.value} ${appearance.episode || ''}</span>`;
                         } else if (appearance.type === 'movie') {
-                            return `<span class="appearance-tag movie">${appearance.value} (${appearance.year})</span>`;
+                            return `<span class="appearance-tag movie">${appearance.value} (${appearance.year || ''})</span>`;
+                        } else {
+                            return `<span class="appearance-tag">${appearance.value}</span>`;
                         }
                     }).join('') : '<span class="appearance-tag">暂无信息</span>'}
                 </div>
@@ -682,7 +684,7 @@ function filterItems() {
         filteredItems = filteredItems.filter(item => 
             item.name.toLowerCase().includes(searchTerm) ||
             item.description.toLowerCase().includes(searchTerm) ||
-            item.features.some(feature => feature.toLowerCase().includes(searchTerm))
+            (item.features || []).some(feature => feature.toLowerCase().includes(searchTerm))
         );
     }
     currentItems = filteredItems;
@@ -710,7 +712,7 @@ function openModal(itemId) {
         <span class="modal-item-category">${item.category}</span>
         <p class="modal-item-description">${item.description}</p>
         <div class="modal-item-features">
-            ${item.features.map(feature => `<span class="modal-feature-tag">${feature}</span>`).join('')}
+            ${(item.features || []).map(feature => `<span class="modal-feature-tag">${feature}</span>`).join('')}
         </div>
         <div class="modal-item-appearances">
             <h3>出现位置：</h3>
